@@ -2,35 +2,29 @@
 
 namespace App\Service;
 
-use App\Dto\TaskDto;
-use App\Entity\Project;
+use App\Dto\TaskRequest;
 use App\Entity\Task;
 use App\Event\ProjectTaskCreatedEvent;
 use App\Event\TaskStateChangedEvent;
-use App\Exception\ViolationException;
 use App\Repository\ProjectRepository;
 use App\Repository\TaskRepository;
 use App\Request\WebRequest;
-use App\Response\Error\ViolationError;
 use App\Utils\Constants;
+use App\Utils\Helper;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TaskService
 {
     private TaskRepository $taskRepository;
-    private ValidatorInterface $validator;
     private EventDispatcherInterface $eventDispatcher;
     private ProjectRepository $projectRepository;
 
     public function __construct(
         TaskRepository $taskRepository,
         ProjectRepository $projectRepository,
-        ValidatorInterface $validator,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->taskRepository = $taskRepository;
-        $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->projectRepository = $projectRepository;
     }
@@ -43,39 +37,31 @@ class TaskService
         return $this->taskRepository->getTasksByProjectId($id, $page, $perPage);
     }
 
-    /**
-     * @throws ViolationException
-     */
-    public function createTask(Task $task, Project $project): Task
+    public function createTask(TaskRequest $taskRequest): Task
     {
-        $task->setProject($project);
-        $violations = $this->validator->validate($task);
-        if (count($violations) > 0) {
-            throw new ViolationException(new ViolationError($violations));
-        }
-        $this->eventDispatcher->dispatch(new ProjectTaskCreatedEvent($task), Constants::TASK_CREATED);
+        $task = new Task();
+        $task->setTitle($taskRequest->getTitle());
+        $task->setDescription($taskRequest->getDescription());
+        $task->setStatus(Helper::TASK_NEW);
+        $task->setEndDate($taskRequest->getEndDate());
+        $task->setProject($this->projectRepository->find($taskRequest->getProjectId()));
+
+        $this->eventDispatcher->dispatch(
+            new ProjectTaskCreatedEvent($task),
+            Constants::TASK_CREATED
+        );
 
         return $task;
     }
 
-    /**
-     * @throws ViolationException
-     */
-    public function updateTask(Task $task, TaskDto $dto): void
+    public function updateTask(Task $task, TaskRequest $taskRequest): void
     {
-        if ($dto->getProjectId()) {
-            $project = $this->projectRepository->find($dto->getProjectId());
+        if ($task->getProject()->getId() !== $taskRequest->getProjectId()) {
+            $task->setProject($this->projectRepository->find($taskRequest->getProjectId()));
         }
-        $task->setProject($project ?? $task->getProject());
-        $task->setTitle($dto->getTitle());
-        $task->setDescription($dto->getDescription());
-        $task->setEndDate($dto->getEndDate());
-
-        $violations = $this->validator->validate($task);
-        if (count($violations) > 0) {
-            throw new ViolationException(new ViolationError($violations));
-        }
-
-        $this->eventDispatcher->dispatch(new TaskStateChangedEvent($task), Constants::TASK_UPDATED);
+        $task->setTitle($taskRequest->getTitle());
+        $task->setDescription($taskRequest->getDescription());
+        $task->setEndDate($taskRequest->getEndDate());
+        $this->eventDispatcher->dispatch(new TaskStateChangedEvent($task));
     }
 }

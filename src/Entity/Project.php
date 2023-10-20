@@ -3,15 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\ProjectRepository;
+use App\Utils\Helper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Validator\ValidProjectStatus;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project
+class Project implements \JsonSerializable
 {
     public const NEW = 'new';
     public const PENDING = 'pending';
@@ -30,17 +29,16 @@ class Project
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', options: ['enum' => 'project_status'])]
-    #[ValidProjectStatus]
-    #[Assert\Positive]
     private string $status = self::NEW;
+
+    #[ORM\Column(type: 'string', options: ['enum' => 'user_type'])]
+    private string $userType;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $startDate = null;
@@ -97,6 +95,16 @@ class Project
         return $this;
     }
 
+    public function getUserType(): string
+    {
+        return $this->userType;
+    }
+
+    public function setUserType(string $userType): void
+    {
+        $this->userType = $userType;
+    }
+
     public function getStartDate(): ?\DateTimeImmutable
     {
         return $this->startDate;
@@ -149,5 +157,37 @@ class Project
         }
 
         return $this;
+    }
+
+    public function updateProjectStatus()
+    {
+        $taskStatuses = $this->getTasks()->map(function (Task $task) {
+            return $task->getStatus();
+        });
+        $taskDeadlines = $this->getTasks()->map(function (Task $task) {
+            return $task->getEndDate();
+        });
+        if ($taskStatuses->contains(Helper::PROJECT_FAILED)) {
+            $this->status = Helper::PROJECT_FAILED;
+        } elseif ($taskStatuses->contains(Helper::PROJECT_DONE)) {
+            $this->status = Helper::PROJECT_DONE;
+        } else {
+            $this->status = Helper::PROJECT_PENDING;
+        }
+    }
+
+    private function isProjectDelayed($taskDeadlines): bool
+    {
+        // Determine if the project is delayed based on your business rules
+        // For example, check if the current date is past the project's expected end date.
+        $currentDate = new \DateTime();
+        $latestDeadline = $taskDeadlines->isEmpty() ? null : $taskDeadlines->max();
+
+        return $latestDeadline !== null && $currentDate > $latestDeadline;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
     }
 }

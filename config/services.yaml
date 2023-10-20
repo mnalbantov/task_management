@@ -27,3 +27,7 @@ services:
     App\EventListener\ProjectTaskCreatedListener:
         tags:
             - { name: 'kernel.event_listener', event: 'task.created', method: 'onTaskCreated' }
+
+    App\EventSubscriber\TaskStateChangeSubscriber:
+        tags:
+            - { name: 'kernel.event_subscriber' }

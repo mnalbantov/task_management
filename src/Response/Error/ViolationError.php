@@ -2,7 +2,6 @@
 
 namespace App\Response\Error;
 
-use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class ViolationError
@@ -17,10 +16,5 @@ class ViolationError
     public function getViolations(): ConstraintViolationListInterface
     {
         return $this->violations;
-    }
-
-    public function addViolations(ConstraintViolationInterface $violation): void
-    {
-        $this->violations->add($violation);
     }
 }

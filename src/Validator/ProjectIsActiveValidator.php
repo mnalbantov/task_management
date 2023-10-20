@@ -21,20 +21,20 @@ class ProjectIsActiveValidator extends ConstraintValidator
         if (null === $value || '' === $value) {
             return;
         }
-        if (!$value instanceof Project) {
-            return;
-        }
+
         /**@var Project $project */
         $project = $this->projectRepository->find($value);
         $forbiddenStatuses = [Project::FAILED, Project::DONE];
 
         if (null === $project) {
-            $this->buildViolation($constraint, $project->getTitle());
+            $this->buildViolation($constraint, $value);
         }
-        // project is completed or deadline passed
-        $endDate = $project->getEndDate();
-        if (($endDate !== null && $endDate < new \DateTime()) || in_array($project, $forbiddenStatuses)) {
-            $this->buildViolation($constraint, $project->getTitle());
+        if ($project) {
+            // project is completed or deadline passed
+            $endDate = $project->getEndDate();
+            if (($endDate !== null && $endDate < new \DateTime()) || in_array($project, $forbiddenStatuses)) {
+                $this->buildViolation($constraint, $project->getTitle());
+            }
         }
     }
 

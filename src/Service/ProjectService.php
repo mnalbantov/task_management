@@ -2,39 +2,49 @@
 
 namespace App\Service;
 
+use App\Dto\ProjectRequest;
 use App\Entity\Project;
 use App\Event\ProjectCreatedEvent;
+use App\Repository\ProjectRepository;
 use App\Repository\ProjectRepositoryInterface;
-use App\Repository\TaskRepository;
-use App\Response\Error\ViolationResponseHandlerInterface;
+use App\Request\WebRequest;
+use App\Response\PaginatedResponse;
 use App\Utils\Constants;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProjectService
 {
-    private ProjectRepositoryInterface $repository;
     private EventDispatcherInterface $eventDispatcher;
-    private ValidatorInterface $validator;
-    private ViolationResponseHandlerInterface $violationResponseHandler;
-    private TaskRepository $taskRepository;
+    private ProjectRepositoryInterface $projectRepository;
 
     public function __construct(
-        ProjectRepositoryInterface $repository,
         EventDispatcherInterface $eventDispatcher,
-        ValidatorInterface $validator,
-        ViolationResponseHandlerInterface $violationResponseHandler,
-        TaskRepository $taskRepository
+        ProjectRepository $projectRepository
     ) {
-        $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->violationResponseHandler = $violationResponseHandler;
-        $this->taskRepository = $taskRepository;
+        $this->projectRepository = $projectRepository;
     }
 
-    public function createProject(Project $project): void
+    public function getProjects(WebRequest $webRequest): array
     {
-        $this->eventDispatcher->dispatch(new ProjectCreatedEvent($project), Constants::PROJECT_CREATED);
+        $perPage = $webRequest->getLimitPerPage();
+        $page = $webRequest->getPage();
+        return $this->projectRepository->getProjects($perPage, $page);
+    }
+
+    public function createProject(ProjectRequest $projectRequest): Project
+    {
+        $project = new Project();
+        $project->setTitle($projectRequest->getTitle());
+        $project->setDescription($projectRequest->getDescription());
+        $project->setStatus(Project::NEW);
+        $project->setUserType($projectRequest->getUserType());
+
+        $this->eventDispatcher->dispatch(
+            new ProjectCreatedEvent($project),
+            Constants::PROJECT_CREATED
+        );
+
+        return $project;
     }
 }

@@ -3,11 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TaskRepository;
-use App\Validator\ProjectIsActive;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 class Task implements \JsonSerializable
@@ -18,14 +15,15 @@ class Task implements \JsonSerializable
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[ORM\Column(type: 'string', options: ['enum' => 'task_status'])]
+    private ?string $status = null;
+
     #[ORM\Column]
-    #[Groups(['show_task', 'list_task'])]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column(nullable: true)]
@@ -33,8 +31,6 @@ class Task implements \JsonSerializable
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
-    #[ProjectIsActive]
-    #[Assert\NotBlank]
     private Project $project;
 
     public function getId(): ?int
@@ -90,6 +86,16 @@ class Task implements \JsonSerializable
         return $this;
     }
 
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): void
+    {
+        $this->status = $status;
+    }
+
     public function getProject(): Project
     {
         return $this->project;
@@ -109,6 +115,7 @@ class Task implements \JsonSerializable
                 'id' => $this->getId(),
                 'title' => $this->getTitle(),
                 'description' => $this->getDescription(),
+                'status' => $this->getStatus(),
                 'project_id' => $this->getProject()->getId(),
                 'project_title' => $this->getProject()->getTitle(),
                 'start_date' => $this->getStartDate(),
