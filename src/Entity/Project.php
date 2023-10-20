@@ -7,23 +7,40 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Validator\ValidProjectStatus;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
+    public const NEW = 'new';
+    public const PENDING = 'pending';
+    public const FAILED = 'failed';
+    public const DONE = 'done';
+
+    public static array $statuses = [
+        self::NEW,
+        self::PENDING,
+        self::FAILED,
+        self::DONE,
+    ];
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
-    #[ORM\Column]
-    private array $status = [];
+    #[ORM\Column(type: 'string', options: ['enum' => 'project_status'])]
+    #[ValidProjectStatus]
+    #[Assert\Positive]
+    private string $status = self::NEW;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $startDate = null;
@@ -68,12 +85,12 @@ class Project
         return $this;
     }
 
-    public function getStatus(): array
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function setStatus(array $status): static
+    public function setStatus(string $status): static
     {
         $this->status = $status;
 
