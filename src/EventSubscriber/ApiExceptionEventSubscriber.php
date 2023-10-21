@@ -5,11 +5,13 @@ namespace App\EventSubscriber;
 use App\Exception\ViolationException;
 use App\Response\Error\ViolationResponseHandlerInterface;
 use App\Response\ErrorResponse;
+use App\Response\NotFoundResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiExceptionEventSubscriber implements EventSubscriberInterface
@@ -40,6 +42,9 @@ class ApiExceptionEventSubscriber implements EventSubscriberInterface
             $errors = $this->violationResponseHandler->handleViolationResponse($exception->getViolationErrors());
             $response = new ErrorResponse($errors);
             $event->setResponse($response);
+        }
+        if ($exception instanceof NotFoundHttpException) {
+            $event->setResponse(new NotFoundResponse());
         }
     }
 

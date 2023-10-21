@@ -2,9 +2,9 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\Task;
 use App\Event\TaskStateChangedEvent;
 use App\Repository\TaskRepository;
-use App\Utils\Helper;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TaskStateChangeSubscriber implements EventSubscriberInterface
@@ -24,19 +24,17 @@ class TaskStateChangeSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onTaskStateChanged(TaskStateChangedEvent $event)
+    public function onTaskStateChanged(TaskStateChangedEvent $event): void
     {
         $task = $event->getTask();
-
-        $project = $task->getProject();
-        $project->updateProjectStatus();
-
-        if ($project->getStatus() === Helper::PROJECT_DONE) {
-            // Check if the project is delayed and mark it as "failed" if necessary
-//            if ($project->isProjectDelayed()) {
-//                $project->setStatus(Helper::PROJECT_FAILED);
-//            }
-        }
+        $this->handleProjectStateChangeEvent($task);
         $this->taskRepository->save($task);
+    }
+
+    private function handleProjectStateChangeEvent(Task $task): void
+    {
+        $project = $task->getProject();
+        $project->updateProjectDuration();
+        $project->updateProjectStatus();
     }
 }

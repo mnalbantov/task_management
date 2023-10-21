@@ -5,7 +5,6 @@ namespace App\Dto;
 use App\Request\BaseApiRequest;
 use App\Validator\AllowedTaskStatus;
 use App\Validator\ProjectIsActive;
-use DateTimeInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class TaskRequest extends BaseApiRequest
@@ -27,9 +26,13 @@ class TaskRequest extends BaseApiRequest
     #[ProjectIsActive]
     protected ?int $projectId = null;
 
-    protected ?DateTimeInterface $startDate = null;
+    #[Assert\DateTime]
+    protected ?string $startDate = null;
 
-    protected ?DateTimeInterface $endDate = null;
+    #[Assert\NotBlank]
+    #[Assert\DateTime]
+    #[Assert\GreaterThan(propertyPath: 'startDate')]
+    protected string $endDate;
 
     public function getId(): ?int
     {
@@ -81,22 +84,22 @@ class TaskRequest extends BaseApiRequest
         $this->projectId = $projectId;
     }
 
-    public function getStartDate(): ?DateTimeInterface
+    public function getStartDate(): ?string
     {
         return $this->startDate;
     }
 
-    public function setStartDate(?DateTimeInterface $startDate): void
+    public function setStartDate(?string $startDate): void
     {
         $this->startDate = $startDate;
     }
 
-    public function getEndDate(): ?DateTimeInterface
+    public function getEndDate(): ?string
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?DateTimeInterface $endDate): void
+    public function setEndDate(?string $endDate): void
     {
         $this->endDate = $endDate;
     }

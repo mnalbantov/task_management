@@ -70,7 +70,6 @@ class Task implements \JsonSerializable
     public function setStartDate(\DateTimeImmutable $startDate): static
     {
         $this->startDate = $startDate;
-
         return $this;
     }
 

@@ -8,7 +8,6 @@ use App\Event\ProjectCreatedEvent;
 use App\Repository\ProjectRepository;
 use App\Repository\ProjectRepositoryInterface;
 use App\Request\WebRequest;
-use App\Response\PaginatedResponse;
 use App\Utils\Constants;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
@@ -29,7 +28,8 @@ class ProjectService
     {
         $perPage = $webRequest->getLimitPerPage();
         $page = $webRequest->getPage();
-        return $this->projectRepository->getProjects($perPage, $page);
+
+        return $this->projectRepository->getProjects($page, $perPage);
     }
 
     public function createProject(ProjectRequest $projectRequest): Project

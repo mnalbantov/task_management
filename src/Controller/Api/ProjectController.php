@@ -31,7 +31,7 @@ class ProjectController extends BaseApiController
         $this->taskService = $taskService;
     }
 
-    #[Route('/list', name: 'list', methods: ['GET'])]
+    #[Route('/', name: 'list', methods: ['GET'])]
     public function index(Request $request): SuccessResponse
     {
         return new SuccessResponse(
@@ -42,7 +42,7 @@ class ProjectController extends BaseApiController
         );
     }
 
-    #[Route('/{id<\d+>}/view', name: 'view', methods: ['GET'])]
+    #[Route('/{id<\d+>}', name: 'view', methods: ['GET'])]
     public function view(int $id): JsonResponse
     {
         $project = $this->projectRepository->find($id);

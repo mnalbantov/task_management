@@ -129,9 +129,6 @@ class Project implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection<int, Task>
-     */
     public function getTasks(): Collection
     {
         return $this->tasks;
@@ -147,6 +144,19 @@ class Project implements \JsonSerializable
         return $this;
     }
 
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'description' => $this->getDescription(),
+            'start_date' => $this->getFormattedStarDate(),
+            'end_date' => $this->getFormattedEndDate(),
+            'duration' => $this->getDuration(),
+            'totalTasks' => $this->getTasks()->count()
+        ];
+    }
+
     public function removeTask(Task $task): static
     {
         if ($this->tasks->removeElement($task)) {
@@ -159,35 +169,143 @@ class Project implements \JsonSerializable
         return $this;
     }
 
-    public function updateProjectStatus()
+    public function updateProjectDuration(): void
     {
-        $taskStatuses = $this->getTasks()->map(function (Task $task) {
-            return $task->getStatus();
-        });
-        $taskDeadlines = $this->getTasks()->map(function (Task $task) {
-            return $task->getEndDate();
-        });
-        if ($taskStatuses->contains(Helper::PROJECT_FAILED)) {
-            $this->status = Helper::PROJECT_FAILED;
-        } elseif ($taskStatuses->contains(Helper::PROJECT_DONE)) {
-            $this->status = Helper::PROJECT_DONE;
-        } else {
-            $this->status = Helper::PROJECT_PENDING;
+        // cannot update if project is failed or completed already
+        if (!$this->isFailed() || !$this->isCompleted()) {
+            $taskStartDates = $this->tasks->map(function (Task $task) {
+                return $task->getStartDate();
+            });
+
+            $taskEndDates = $this->tasks->map(function (Task $task) {
+                return $task->getEndDate();
+            });
+
+            $startDateArray = $taskStartDates->toArray();
+            $endDateArray = $taskEndDates->toArray();
+
+            $this->startDate = empty($startDateArray) ? null : min($startDateArray);
+
+            $this->endDate = empty($endDateArray) ? null : max($endDateArray);
         }
     }
 
-    private function isProjectDelayed($taskDeadlines): bool
+    public function updateProjectStatus(): void
     {
-        // Determine if the project is delayed based on your business rules
-        // For example, check if the current date is past the project's expected end date.
+        if ($this->isPending()) {
+            $this->setStatus(Helper::PROJECT_PENDING);
+        }
+        if ($this->isFailed()) {
+            $this->setStatus(Helper::PROJECT_FAILED);
+        }
+        if ($this->isNew()) {
+            $this->setStatus(Helper::PROJECT_NEW);
+        }
+        if ($this->isCompleted()) {
+            $this->setStatus(Helper::PROJECT_DONE);
+        }
+        $tasksDeadLines = $this->getTaskDeadLines()->toArray();
+        if ($this->isProjectDelayed($tasksDeadLines)) {
+            $this->setStatus(Helper::PROJECT_FAILED);
+        }
+    }
+
+    public function getDuration(): string
+    {
+        $startDate = $this->getStartDate();
+        $endDate = $this->getEndDate();
+
+        if ($startDate && $endDate) {
+            $interval = $endDate->diff($startDate);
+            $days = $interval->format('%a');
+            $hours = $interval->format('%h');
+            $duration = "$days days and $hours hours";
+        } else {
+            $duration = 'N/A';
+        }
+
+        return $duration;
+    }
+
+    private function getFormattedStarDate(): ?string
+    {
+        if ($this->getStartDate()) {
+            return $this->getStartDate()->format('d/M/Y h:m');
+        }
+
+        return null;
+    }
+
+    private function getFormattedEndDate(): ?string
+    {
+        if ($this->getEndDate()) {
+            return $this->getEndDate()->format('d/M/Y h:m');
+        }
+
+        return null;
+    }
+
+    private function isCompleted(): bool
+    {
+        foreach ($this->tasks as $task) {
+            if ($task->getStatus() !== Helper::TASK_DONE) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function isPending(): bool
+    {
+        if ($this->tasks->isEmpty()) {
+            return false;
+        }
+        //ensure it's not already passed the deadline
+        if ($this->isFailed()) {
+            return false;
+        }
+
+        $inProgressCount = 0;
+        foreach ($this->tasks as $task) {
+            if ($task->getStatus() === Helper::TASK_IN_PROGRESS || $task->getStatus() !== Helper::TASK_DONE) {
+                $inProgressCount++;
+            }
+        }
+
+        return $inProgressCount / count($this->tasks) > 0.5;
+    }
+
+    private function isFailed(): bool
+    {
+        if ($this->getEndDate() === null) {
+            return false;
+        }
+
+        $now = new \DateTime();
+        $deadline = $this->getEndDate();
+
+        return $now > $deadline;
+    }
+
+    private function isNew(): bool
+    {
+        return $this->tasks->isEmpty();
+    }
+
+    private function getTaskDeadLines(): ArrayCollection|Collection
+    {
+        return $this->tasks->map(function (Task $task) {
+            return $task->getEndDate();
+        });
+    }
+
+    private function isProjectDelayed(array $taskDeadlines): bool
+    {
         $currentDate = new \DateTime();
-        $latestDeadline = $taskDeadlines->isEmpty() ? null : $taskDeadlines->max();
+        $latestDeadline = empty($taskDeadlines) ? null : max($taskDeadlines);
 
         return $latestDeadline !== null && $currentDate > $latestDeadline;
     }
 
-    public function jsonSerialize(): array
-    {
-        return get_object_vars($this);
-    }
 }

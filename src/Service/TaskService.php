@@ -11,6 +11,8 @@ use App\Repository\TaskRepository;
 use App\Request\WebRequest;
 use App\Utils\Constants;
 use App\Utils\Helper;
+use DateTime;
+use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class TaskService
@@ -43,9 +45,10 @@ class TaskService
         $task->setTitle($taskRequest->getTitle());
         $task->setDescription($taskRequest->getDescription());
         $task->setStatus(Helper::TASK_NEW);
-        $task->setEndDate($taskRequest->getEndDate());
+        $task->setEndDate(
+            new DateTimeImmutable($taskRequest->getEndDate())
+        );
         $task->setProject($this->projectRepository->find($taskRequest->getProjectId()));
-
         $this->eventDispatcher->dispatch(
             new ProjectTaskCreatedEvent($task),
             Constants::TASK_CREATED
@@ -61,7 +64,10 @@ class TaskService
         }
         $task->setTitle($taskRequest->getTitle());
         $task->setDescription($taskRequest->getDescription());
-        $task->setEndDate($taskRequest->getEndDate());
+        $task->setStatus($taskRequest->getStatus());
+        $task->setEndDate(
+            new DateTimeImmutable($taskRequest->getEndDate())
+        );
         $this->eventDispatcher->dispatch(new TaskStateChangedEvent($task));
     }
 }

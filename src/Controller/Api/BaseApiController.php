@@ -12,9 +12,9 @@ class BaseApiController extends AbstractController
     /**
      * @throws ViolationException
      */
-    protected function validateRequest(BaseApiRequest $taskRequest)
+    protected function validateRequest(BaseApiRequest $apiRequest)
     {
-        $violations = $taskRequest->validate();
+        $violations = $apiRequest->validate();
         if (count($violations) > 0) {
             throw new ViolationException(new ViolationError($violations));
         }
