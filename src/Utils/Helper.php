@@ -2,6 +2,8 @@
 
 namespace App\Utils;
 
+use DateTime;
+
 class Helper
 {
     public const CLIENT_TYPE = 'client';
@@ -37,4 +39,8 @@ class Helper
         self::PROJECT_DONE,
     ];
 
+    public static function createDateTime($dateTimeString): DateTime|bool
+    {
+        return DateTime::createFromFormat('Y-m-d H:i:s', $dateTimeString);
+    }
 }

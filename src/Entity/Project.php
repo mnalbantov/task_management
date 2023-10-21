@@ -8,10 +8,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false)]
 class Project implements \JsonSerializable
 {
+    use TimestampableTrait;
+
     public const NEW = 'new';
     public const PENDING = 'pending';
     public const FAILED = 'failed';
@@ -41,10 +45,10 @@ class Project implements \JsonSerializable
     private string $userType;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $startDate = null;
+    private ?\DateTime $startDate = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $endDate = null;
+    private ?\DateTime $endDate = null;
 
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Task::class)]
     private Collection $tasks;
@@ -105,24 +109,27 @@ class Project implements \JsonSerializable
         $this->userType = $userType;
     }
 
-    public function getStartDate(): ?\DateTimeImmutable
+    public function getStartDate(): ?\DateTime
     {
         return $this->startDate;
     }
 
-    public function setStartDate(\DateTimeImmutable $startDate): static
+    public function setStartDate(?\DateTime $startDate): static
     {
+        if (!$startDate) {
+            $startDate = new \DateTime();
+        }
         $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getEndDate(): ?\DateTimeImmutable
+    public function getEndDate(): ?\DateTime
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTimeImmutable $endDate): static
+    public function setEndDate(?\DateTime $endDate): static
     {
         $this->endDate = $endDate;
 
@@ -152,8 +159,10 @@ class Project implements \JsonSerializable
             'description' => $this->getDescription(),
             'start_date' => $this->getFormattedStarDate(),
             'end_date' => $this->getFormattedEndDate(),
+            'status' => $this->getStatus(),
             'duration' => $this->getDuration(),
-            'totalTasks' => $this->getTasks()->count()
+            'totalTasks' => $this->getTasks()->count(),
+            'activeTasks' => $this->getActiveTasks()->count(),
         ];
     }
 
@@ -173,20 +182,14 @@ class Project implements \JsonSerializable
     {
         // cannot update if project is failed or completed already
         if (!$this->isFailed() || !$this->isCompleted()) {
-            $taskStartDates = $this->tasks->map(function (Task $task) {
-                return $task->getStartDate();
-            });
+            $startDateArray = $this->getStartDatesOnActiveTasks();
+            $endDateArray = $this->getEndDatesOnActiveTasks();
 
-            $taskEndDates = $this->tasks->map(function (Task $task) {
-                return $task->getEndDate();
-            });
+            $startDate = empty($startDateArray) ? null : min($startDateArray);
+            $endDate = empty($endDateArray) ? null : max($endDateArray);
 
-            $startDateArray = $taskStartDates->toArray();
-            $endDateArray = $taskEndDates->toArray();
-
-            $this->startDate = empty($startDateArray) ? null : min($startDateArray);
-
-            $this->endDate = empty($endDateArray) ? null : max($endDateArray);
+            $this->setStartDate($startDate ?? null);
+            $this->setEndDate($endDate ?? null);
         }
     }
 
@@ -225,6 +228,31 @@ class Project implements \JsonSerializable
         }
 
         return $duration;
+    }
+
+    public function getStartDatesOnActiveTasks(): array
+    {
+        return $this->tasks->filter(function (Task $task) {
+            return $task->getDeletedAt() === null;
+        })->map(function (Task $task) {
+            return $task->getStartDate();
+        })->toArray();
+    }
+
+    public function getEndDatesOnActiveTasks(): array
+    {
+        return $this->tasks->filter(function (Task $task) {
+            return $task->getDeletedAt() === null;
+        })->map(function (Task $task) {
+            return $task->getEndDate();
+        })->toArray();
+    }
+
+    private function getActiveTasks(): ArrayCollection|Collection
+    {
+        return $this->tasks->filter(function (Task $task) {
+            return $task->getDeletedAt() === null;
+        });
     }
 
     private function getFormattedStarDate(): ?string
@@ -268,6 +296,9 @@ class Project implements \JsonSerializable
 
         $inProgressCount = 0;
         foreach ($this->tasks as $task) {
+            if ($task->getDeletedAt() !== null) {
+                continue;
+            }
             if ($task->getStatus() === Helper::TASK_IN_PROGRESS || $task->getStatus() !== Helper::TASK_DONE) {
                 $inProgressCount++;
             }

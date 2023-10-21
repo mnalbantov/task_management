@@ -2,13 +2,14 @@
 
 namespace App\Service;
 
-use App\Dto\ProjectRequest;
+use App\Dto\CreateProjectRequest;
 use App\Entity\Project;
 use App\Event\ProjectCreatedEvent;
 use App\Repository\ProjectRepository;
 use App\Repository\ProjectRepositoryInterface;
 use App\Request\WebRequest;
 use App\Utils\Constants;
+use App\Utils\Helper;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class ProjectService
@@ -32,13 +33,17 @@ class ProjectService
         return $this->projectRepository->getProjects($page, $perPage);
     }
 
-    public function createProject(ProjectRequest $projectRequest): Project
+    public function createProject(CreateProjectRequest $projectRequest): Project
     {
         $project = new Project();
         $project->setTitle($projectRequest->getTitle());
         $project->setDescription($projectRequest->getDescription());
         $project->setStatus(Project::NEW);
         $project->setUserType($projectRequest->getUserType());
+        if ($projectRequest->getStartDate()) {
+            $project->setStartDate(Helper::createDateTime($projectRequest->getStartDate()));
+        }
+        $project->setEndDate(Helper::createDateTime($projectRequest->getEndDate() ?? null));
 
         $this->eventDispatcher->dispatch(
             new ProjectCreatedEvent($project),

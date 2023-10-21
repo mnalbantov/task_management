@@ -3,11 +3,10 @@
 namespace App\Dto;
 
 use App\Request\BaseApiRequest;
-use App\Validator\AllowedTaskStatus;
-use App\Validator\ProjectIsActive;
+use App\Validator\AllowedUserType;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class TaskRequest extends BaseApiRequest
+class CreateProjectRequest extends BaseApiRequest
 {
     private ?int $id;
 
@@ -17,22 +16,15 @@ class TaskRequest extends BaseApiRequest
     #[Assert\NotBlank]
     protected ?string $description = '';
 
-    #[Assert\NotBlank]
-    #[AllowedTaskStatus]
-    protected ?string $status = null;
-
-    #[Assert\NotBlank]
-    #[Assert\Positive]
-    #[ProjectIsActive]
-    protected ?int $projectId = null;
+    #[AllowedUserType]
+    protected ?string $userType = '';
 
     #[Assert\DateTime]
-    protected ?string $startDate = null;
+    protected ?string $startDate;
 
-    #[Assert\NotBlank]
     #[Assert\DateTime]
     #[Assert\GreaterThan(propertyPath: 'startDate')]
-    protected string $endDate;
+    protected ?string $endDate;
 
     public function getId(): ?int
     {
@@ -64,24 +56,14 @@ class TaskRequest extends BaseApiRequest
         $this->description = $description;
     }
 
-    public function getStatus(): ?string
+    public function getUserType(): ?string
     {
-        return $this->status;
+        return $this->userType;
     }
 
-    public function setStatus(?string $status): void
+    public function setUserType(?string $userType): void
     {
-        $this->status = $status;
-    }
-
-    public function getProjectId(): ?int
-    {
-        return $this->projectId;
-    }
-
-    public function setProjectId(?int $projectId): void
-    {
-        $this->projectId = $projectId;
+        $this->userType = $userType;
     }
 
     public function getStartDate(): ?string
@@ -103,5 +85,4 @@ class TaskRequest extends BaseApiRequest
     {
         $this->endDate = $endDate;
     }
-
 }

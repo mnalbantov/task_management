@@ -9,4 +9,5 @@ class Constants
     public const PROJECT_CREATED = 'project.created';
     public const TASK_CREATED = 'task.created';
     public const TASK_UPDATED = 'task.updated';
+    public const TASK_DELETED = 'task.deleted';
 }

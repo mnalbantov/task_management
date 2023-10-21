@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Dto\TaskRequest;
+use App\Dto\CreateTaskRequest;
 use App\Entity\Task;
 use App\Event\ProjectTaskCreatedEvent;
 use App\Event\TaskStateChangedEvent;
@@ -12,7 +12,6 @@ use App\Request\WebRequest;
 use App\Utils\Constants;
 use App\Utils\Helper;
 use DateTime;
-use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class TaskService
@@ -39,16 +38,15 @@ class TaskService
         return $this->taskRepository->getTasksByProjectId($id, $page, $perPage);
     }
 
-    public function createTask(TaskRequest $taskRequest): Task
+    public function createTask(CreateTaskRequest $taskRequest): Task
     {
         $task = new Task();
         $task->setTitle($taskRequest->getTitle());
         $task->setDescription($taskRequest->getDescription());
         $task->setStatus(Helper::TASK_NEW);
-        $task->setEndDate(
-            new DateTimeImmutable($taskRequest->getEndDate())
-        );
+        $task->setEndDate(Helper::createDateTime($taskRequest->getEndDate()));
         $task->setProject($this->projectRepository->find($taskRequest->getProjectId()));
+        $task->getProject()->addTask($task);
         $this->eventDispatcher->dispatch(
             new ProjectTaskCreatedEvent($task),
             Constants::TASK_CREATED
@@ -57,7 +55,7 @@ class TaskService
         return $task;
     }
 
-    public function updateTask(Task $task, TaskRequest $taskRequest): void
+    public function updateTask(Task $task, CreateTaskRequest $taskRequest): Task
     {
         if ($task->getProject()->getId() !== $taskRequest->getProjectId()) {
             $task->setProject($this->projectRepository->find($taskRequest->getProjectId()));
@@ -65,9 +63,20 @@ class TaskService
         $task->setTitle($taskRequest->getTitle());
         $task->setDescription($taskRequest->getDescription());
         $task->setStatus($taskRequest->getStatus());
-        $task->setEndDate(
-            new DateTimeImmutable($taskRequest->getEndDate())
-        );
+        if ($taskRequest->getStartDate()) {
+            $task->setStartDate(Helper::createDateTime($taskRequest->getStartDate()));
+        }
+        if ($taskRequest->getEndDate()) {
+            $task->setEndDate(Helper::createDateTime($taskRequest->getEndDate()));
+        }
+        $this->eventDispatcher->dispatch(new TaskStateChangedEvent($task));
+
+        return $task;
+    }
+
+    public function deleteTask(Task $task): void
+    {
+        $task->setDeletedAt(new DateTime());
         $this->eventDispatcher->dispatch(new TaskStateChangedEvent($task));
     }
 }

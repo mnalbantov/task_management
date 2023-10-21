@@ -28,6 +28,10 @@ services:
         tags:
             - { name: 'kernel.event_listener', event: 'task.created', method: 'onTaskCreated' }
 
+    App\EventListener\ProjectTaskDeletedListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'task.deleted', method: 'onTaskDeleted' }
+
     App\EventSubscriber\TaskStateChangeSubscriber:
         tags:
             - { name: 'kernel.event_subscriber' }

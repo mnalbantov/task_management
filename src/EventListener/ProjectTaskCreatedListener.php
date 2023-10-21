@@ -16,10 +16,15 @@ class ProjectTaskCreatedListener
 
     public function onTaskCreated(ProjectTaskCreatedEvent $event): void
     {
+        // the purpose of this listener is to demonstrate ability for different
+        // actions like trigger other mechanism etc
         $task = $event->getTask();
         if (!$task->getStartDate()) {
-            $task->setStartDate(new \DateTimeImmutable());
+            $task->setStartDate(new \DateTime());
         }
+        $project = $task->getProject();
+        $project->updateProjectDuration();
+        $project->updateProjectStatus();
         $this->repository->save($task);
     }
 }

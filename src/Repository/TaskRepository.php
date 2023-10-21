@@ -23,6 +23,11 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
+    public function persist(Task $task): void
+    {
+        $this->getEntityManager()->persist($task);
+    }
+
     public function save(Task $task): void
     {
         $this->getEntityManager()->persist($task);
@@ -35,8 +40,22 @@ class TaskRepository extends ServiceEntityRepository
 
         $qb
             ->where('t.project = :id')
+            ->andWhere('t.deletedAt IS NULL')
             ->setParameter(':id', $projectId);
 
         return $this->usePaginatedResponse($qb, $page, $perPage);
     }
+
+    public function getActiveTaskById(int $id): ?Task
+    {
+        $qb = $this->createQueryBuilder('t');
+
+        return $qb
+            ->where('t.id = :id')
+            ->andWhere('t.deletedAt IS NULL')
+            ->setParameter(':id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 }

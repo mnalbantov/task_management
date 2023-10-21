@@ -32,7 +32,10 @@ class ProjectIsActiveValidator extends ConstraintValidator
         if ($project) {
             // project is completed or deadline passed
             $endDate = $project->getEndDate();
-            if (($endDate !== null && $endDate < new \DateTime()) || in_array($project, $forbiddenStatuses)) {
+            if (($endDate !== null && $endDate < new \DateTime()) || in_array(
+                    $project->getStatus(),
+                    $forbiddenStatuses
+                )) {
                 $this->buildViolation($constraint, $project->getTitle());
             }
         }

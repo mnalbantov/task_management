@@ -21,7 +21,7 @@ class ProjectCreatedListener
         $project = $event->getProject();
 
         if (!$project->getStartDate()) {
-            $project->setStartDate(new \DateTimeImmutable());
+            $project->setStartDate(new \DateTime());
         }
         $project->setStatus(Project::NEW); // new project as always new status
         $this->repository->save($project);

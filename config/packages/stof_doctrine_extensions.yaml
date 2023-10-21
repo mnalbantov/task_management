@@ -1,0 +1,6 @@
+stof_doctrine_extensions:
+  orm:
+    default:
+      timestampable: true
+      softdeleteable: true
+      # Add other extensions as needed

@@ -19,6 +19,8 @@ class TaskStateChangeSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
+        // use subscribers for state changes
+        // can be extended as per our design & goals
         return [
             TaskStateChangedEvent::class => 'onTaskStateChanged',
         ];

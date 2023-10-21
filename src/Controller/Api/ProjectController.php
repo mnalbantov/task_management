@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\ProjectRequest;
+use App\Dto\CreateProjectRequest;
 use App\Exception\ViolationException;
 use App\Repository\ProjectRepositoryInterface;
 use App\Request\WebRequest;
@@ -70,7 +70,7 @@ class ProjectController extends BaseApiController
      * @throws ViolationException
      */
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function create(ProjectRequest $projectRequest): JsonResponse
+    public function create(CreateProjectRequest $projectRequest): JsonResponse
     {
         $this->validateRequest($projectRequest);
         $project = $this->projectService->createProject($projectRequest);

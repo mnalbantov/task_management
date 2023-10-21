@@ -3,12 +3,10 @@
 namespace App\Dto;
 
 use App\Request\BaseApiRequest;
-use App\Validator\AllowedProjectStatus;
-use App\Validator\AllowedUserType;
-use DateTimeInterface;
+use App\Validator\ProjectIsActive;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ProjectRequest extends BaseApiRequest
+class CreateTaskRequest extends BaseApiRequest
 {
     private ?int $id;
 
@@ -19,15 +17,17 @@ class ProjectRequest extends BaseApiRequest
     protected ?string $description = '';
 
     #[Assert\NotBlank]
-    #[AllowedProjectStatus]
-    protected ?string $status = '';
+    #[Assert\Positive]
+    #[ProjectIsActive]
+    protected ?int $projectId = null;
 
-    #[AllowedUserType]
-    protected ?string $userType = '';
+    #[Assert\DateTime]
+    protected ?string $startDate = null;
 
-    protected ?DateTimeInterface $startDate = null;
-
-    protected ?DateTimeInterface $endDate = null;
+    #[Assert\NotBlank]
+    #[Assert\DateTime]
+    #[Assert\GreaterThan(propertyPath: 'startDate')]
+    protected string $endDate;
 
     public function getId(): ?int
     {
@@ -59,43 +59,34 @@ class ProjectRequest extends BaseApiRequest
         $this->description = $description;
     }
 
-    public function getStatus(): ?string
+    public function getProjectId(): ?int
     {
-        return $this->status;
+        return $this->projectId;
     }
 
-    public function setStatus(?string $status): void
+    public function setProjectId(?int $projectId): void
     {
-        $this->status = $status;
+        $this->projectId = $projectId;
     }
 
-    public function getUserType(): ?string
-    {
-        return $this->userType;
-    }
-
-    public function setUserType(?string $userType): void
-    {
-        $this->userType = $userType;
-    }
-
-    public function getStartDate(): ?DateTimeInterface
+    public function getStartDate(): ?string
     {
         return $this->startDate;
     }
 
-    public function setStartDate(?DateTimeInterface $startDate): void
+    public function setStartDate(?string $startDate): void
     {
         $this->startDate = $startDate;
     }
 
-    public function getEndDate(): ?DateTimeInterface
+    public function getEndDate(): ?string
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?DateTimeInterface $endDate): void
+    public function setEndDate(?string $endDate): void
     {
         $this->endDate = $endDate;
     }
+
 }

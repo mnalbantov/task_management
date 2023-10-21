@@ -2,7 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\TaskRequest;
+use App\Dto\CreateTaskRequest;
+use App\Dto\UpdateTaskRequest;
 use App\Exception\ViolationException;
 use App\Repository\TaskRepository;
 use App\Response\NotFoundResponse;
@@ -29,7 +30,7 @@ class TaskController extends BaseApiController
      * @throws ViolationException
      */
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function createTask(TaskRequest $taskRequest): JsonResponse
+    public function create(CreateTaskRequest $taskRequest): JsonResponse
     {
         $this->validateRequest($taskRequest);
         $task = $this->taskService->createTask($taskRequest);
@@ -41,14 +42,26 @@ class TaskController extends BaseApiController
      * @throws ViolationException
      */
     #[Route('/{id<\d+>}/update', name: 'update', methods: ['PATCH'])]
-    public function updateTask(TaskRequest $taskRequest, int $id): JsonResponse
+    public function update(UpdateTaskRequest $taskRequest, int $id): JsonResponse
     {
-        $task = $this->taskRepository->find($id);
+        $task = $this->taskRepository->getActiveTaskById($id);
         if (!$task) {
             return new NotFoundResponse();
         }
         $this->validateRequest($taskRequest);
-        $this->taskService->updateTask($task, $taskRequest);
+        $task = $this->taskService->updateTask($task, $taskRequest);
+
+        return new SuccessResponse($task);
+    }
+
+    #[Route('/{id<\d+>}/delete', name: 'delete', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
+    {
+        $task = $this->taskRepository->getActiveTaskById($id);
+        if (!$task) {
+            return new NotFoundResponse();
+        }
+        $this->taskService->deleteTask($task);
 
         return new SuccessResponse();
     }
