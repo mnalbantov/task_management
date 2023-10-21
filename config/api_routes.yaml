@@ -1,0 +1,6 @@
+#api_routes:
+#  resource: '../src/Controller/Api/'
+#  type: annotation
+#  prefix: /api
+
+# Temp stopped this, but if we want we can manipulate our routing

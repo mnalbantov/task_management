@@ -2,6 +2,8 @@
 
 namespace App\Response;
 
+use Knp\Component\Pager\Pagination\PaginationInterface;
+
 class PaginatedResponse implements \JsonSerializable
 {
     private int $page;

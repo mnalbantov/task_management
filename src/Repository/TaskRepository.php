@@ -34,7 +34,8 @@ class TaskRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function getTasksByProjectId(int $projectId, int $page, int $perPage): array
+    // demo for using custom paginator
+    public function getPaginatedTasksByProjectId(int $projectId, int $page, int $perPage): array
     {
         $qb = $this->createQueryBuilder('t');
 
@@ -44,6 +45,18 @@ class TaskRepository extends ServiceEntityRepository
             ->setParameter(':id', $projectId);
 
         return $this->usePaginatedResponse($qb, $page, $perPage);
+    }
+
+    public function getTasksByProjectId(int $projectId): array
+    {
+        $qb = $this->createQueryBuilder('t');
+
+        $qb
+            ->where('t.project = :id')
+            ->andWhere('t.deletedAt IS NULL')
+            ->setParameter(':id', $projectId);
+
+        return $qb->getQuery()->getResult();
     }
 
     public function getActiveTaskById(int $id): ?Task

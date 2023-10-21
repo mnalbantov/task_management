@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\CreateTaskRequest;
+use App\Dto\UpdateTaskRequest;
 use App\Entity\Task;
 use App\Event\ProjectTaskCreatedEvent;
 use App\Event\TaskStateChangedEvent;
@@ -35,7 +36,12 @@ class TaskService
         $perPage = $requestFilters->getLimitPerPage();
         $page = $requestFilters->getPage();
 
-        return $this->taskRepository->getTasksByProjectId($id, $page, $perPage);
+        return $this->taskRepository->getPaginatedTasksByProjectId($id, $page, $perPage);
+    }
+
+    public function getTasksByProject(int $projectId): array
+    {
+        return $this->taskRepository->getTasksByProjectId($projectId);
     }
 
     public function createTask(CreateTaskRequest $taskRequest): Task
@@ -55,7 +61,7 @@ class TaskService
         return $task;
     }
 
-    public function updateTask(Task $task, CreateTaskRequest $taskRequest): Task
+    public function updateTask(Task $task, UpdateTaskRequest $taskRequest): Task
     {
         if ($task->getProject()->getId() !== $taskRequest->getProjectId()) {
             $task->setProject($this->projectRepository->find($taskRequest->getProjectId()));

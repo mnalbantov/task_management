@@ -1,0 +1,28 @@
+{# templates/project/list.html.twig #}
+
+<h1>Projects</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Task ID</th>
+        <th>Task Name</th>
+        <th>Status</th>
+        <th>Task Date</th>
+        <th>Task Date</th>
+        <th>Project Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+        <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.title }}</td>
+            <td>{{ task.status }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{# Add pagination links here if needed #}
+<div class="pagination">
+    {{ knp_pagination_render(tasks) }}
+</div>

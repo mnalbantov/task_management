@@ -40,10 +40,10 @@ trait PaginatorTrait
         }
 
         $paginatedResponse = new PaginatedResponse();
-        $paginatedResponse->setPage($page);
-        $paginatedResponse->setPages($pagesCount);
-        $paginatedResponse->setTotalItems($totalItems);
-        $paginatedResponse->setData($paginatedData);
+            $paginatedResponse->setPage($page);
+            $paginatedResponse->setPages($pagesCount);
+            $paginatedResponse->setTotalItems($totalItems);
+            $paginatedResponse->setData($paginatedData);
 
         return $paginatedResponse->jsonSerialize();
     }

@@ -5,3 +5,12 @@ controllers:
 kernel:
     resource: ../src/Kernel.php
     type: annotation
+
+#app_api_routes:
+#    resource: api_routes.yaml # Stopped, just list here for demo purposes
+web_routes:
+    resource: web_routes.yaml
+
+projects_list:
+    path: /web/projects
+    controller: App\Controller\Web/HomeController::list

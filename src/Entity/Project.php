@@ -230,6 +230,11 @@ class Project implements \JsonSerializable
         return $duration;
     }
 
+    public function getTotalTasks(): int
+    {
+        return $this->getTasks()->count();
+    }
+
     public function getStartDatesOnActiveTasks(): array
     {
         return $this->tasks->filter(function (Task $task) {
