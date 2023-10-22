@@ -4,11 +4,11 @@
 <table>
     <thead>
     <tr>
-        <th>Task ID</th>
-        <th>Task Name</th>
+        <th>ID</th>
+        <th>Name</th>
         <th>Status</th>
-        <th>Task Date</th>
-        <th>Task Date</th>
+        <th>Start Date</th>
+        <th>End Date</th>
         <th>Project Name</th>
     </tr>
     </thead>
@@ -18,6 +18,9 @@
             <td>{{ task.id }}</td>
             <td>{{ task.title }}</td>
             <td>{{ task.status }}</td>
+            <td>{{ (task.startDate) ? task.startDate|date('F j, Y') : '' }}</td>
+            <td>{{ (task.endDate) ? task.endDate|date('F j, Y') : '' }}</td>
+            <td>{{ task.project.title }}</td>
         </tr>
     {% endfor %}
     </tbody>
