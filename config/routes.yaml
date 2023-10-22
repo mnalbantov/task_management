@@ -11,6 +11,3 @@ kernel:
 web_routes:
     resource: web_routes.yaml
 
-projects_list:
-    path: /web/projects
-    controller: App\Controller\Web/HomeController::list
