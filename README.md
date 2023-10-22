@@ -62,7 +62,15 @@ The project structure is trying to follow Symfony one and based mainly on
 - Migrations & Fixtures
 - Custom Query Paginator & Knp Paginator
 
-
+## Workflow 
+1. As Project is created, it's with **New** status by default.
+2. Task can be created/assigned only for opened projects (_i.e not failed or completed_).
+3. When task is created/updated it's reflect on Project status and time frame.
+4. - Task status is updated to **In Progress** and End date is set for the task. 
+   - The project overall timeframe has been updated, based on the tasks.
+5. If task is updated, but deadline for the project is missed, it will automatically mark as Failed.
+6. **Done** is considered as all the Project  tasks are completed in time.
+7. Duration represents the time frame in tasks for particular project.
 _Not used Forms & FormTypes neither built-in Symfony Form Request Handler & Twig template engine_
 ## Endpoints & Examples
 
