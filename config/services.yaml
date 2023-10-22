@@ -10,7 +10,9 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
+        bind:
+            $exampleDashboardKey: '%env(EXAMPLE_API_KEY)%'
+            $exampleDashboardApi: '%env(EXAMPLE_API_URL)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -28,10 +30,16 @@ services:
         tags:
             - { name: 'kernel.event_listener', event: 'task.created', method: 'onTaskCreated' }
 
-    App\EventListener\ProjectTaskDeletedListener:
-        tags:
-            - { name: 'kernel.event_listener', event: 'task.deleted', method: 'onTaskDeleted' }
+#    App\EventListener\ProjectTaskDeletedListener:
+#        tags:
+#            - { name: 'kernel.event_listener', event: 'task.deleted', method: 'onTaskDeleted' }
 
     App\EventSubscriber\TaskStateChangeSubscriber:
         tags:
             - { name: 'kernel.event_subscriber' }
+
+    #showcase for specifying concrete services dynamically through DI container
+    App\Controller\Web\HomeController:
+        arguments:
+            - '@App\Repository\ProjectRepository'
+            - '@knp_paginator'

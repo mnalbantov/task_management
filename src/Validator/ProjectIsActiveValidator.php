@@ -22,20 +22,27 @@ class ProjectIsActiveValidator extends ConstraintValidator
             return;
         }
 
-        /**@var Project $project */
-        $project = $this->projectRepository->find($value);
+        // @fixme this could be optimised for querying not deleted project directly
+        /** @var Project $project */
+        $project = $this->projectRepository->find(
+            $value
+        );
         $forbiddenStatuses = [Project::FAILED, Project::DONE];
 
         if (null === $project) {
             $this->buildViolation($constraint, $value);
         }
         if ($project) {
+            // deleted project
+            if (null !== $project->getDeletedAt()) {
+                $this->buildViolation($constraint, $value);
+            }
             // project is completed or deadline passed
             $endDate = $project->getEndDate();
-            if (($endDate !== null && $endDate < new \DateTime()) || in_array(
-                    $project->getStatus(),
-                    $forbiddenStatuses
-                )) {
+            if ((null !== $endDate && $endDate < new \DateTime()) || in_array(
+                $project->getStatus(),
+                $forbiddenStatuses
+            )) {
                 $this->buildViolation($constraint, $project->getTitle());
             }
         }

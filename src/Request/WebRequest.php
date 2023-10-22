@@ -21,8 +21,22 @@ final class WebRequest
 
     public static function getRequestFilters(Request $request): WebRequest
     {
-        $page = $request->query->get('page') ?? null;
-        $resultsPerPage = $request->query->get('resultsPerPage') ?? null;
+        $page = filter_var(
+            $request->query->get('page'),
+            FILTER_VALIDATE_INT
+        ) ?? self::$defaultPage;
+
+        $resultsPerPage = filter_var(
+            $request->query->get('resultsPerPage'),
+            FILTER_VALIDATE_INT
+        ) ?? self::$defaultLimit;
+
+        if ($page <= 0) {
+            $page = self::$defaultPage;
+        }
+        if ($resultsPerPage <= 0) {
+            $resultsPerPage = self::$defaultLimit;
+        }
         $orderBy = $request->query->get('orderBy') ?? null;
 
         $orderBy = self::getSorting($orderBy);
@@ -81,5 +95,4 @@ final class WebRequest
     {
         $this->sorOrderBy = $sorOrderBy;
     }
-
 }

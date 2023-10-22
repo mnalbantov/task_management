@@ -12,7 +12,6 @@ use App\Repository\TaskRepository;
 use App\Request\WebRequest;
 use App\Utils\Constants;
 use App\Utils\Helper;
-use DateTime;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class TaskService
@@ -31,6 +30,7 @@ class TaskService
         $this->projectRepository = $projectRepository;
     }
 
+    // showcase for custom pagination
     public function getTasks(WebRequest $requestFilters, int $id): array
     {
         $perPage = $requestFilters->getLimitPerPage();
@@ -82,7 +82,7 @@ class TaskService
 
     public function deleteTask(Task $task): void
     {
-        $task->setDeletedAt(new DateTime());
+        $task->setDeletedAt(new \DateTime());
         $this->eventDispatcher->dispatch(new TaskStateChangedEvent($task));
     }
 }

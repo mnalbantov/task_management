@@ -17,7 +17,7 @@ class ErrorResponse extends JsonResponse
         $data = [
             'code' => $code,
             'data' => [],
-            'validation_errors' => $errors
+            'validation_errors' => $errors,
         ];
         parent::__construct($data, $httpStatusCode, $headers, $json);
     }

@@ -19,8 +19,11 @@
             <td>{{ project.id }}</td>
             <td>{{ project.title }}</td>
             <td>{{ project.status }}</td>
+            <td>{{ (project.startDate) ? project.startDate|date('F j, Y') : '' }}</td>
+            <td>{{ (project.endDate) ? project.endDate|date('F j, Y') : '' }}</td>
             <td>{{ project.duration }}</td>
             <td>{{ project.totalTasks }}</td>
+            <td><a href="{{ project.id }}/tasks">View</a></td>
         </tr>
     {% endfor %}
     </tbody>

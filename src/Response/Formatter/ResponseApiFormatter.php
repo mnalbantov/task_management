@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Response;
+namespace App\Response\Formatter;
 
+use App\Response\PaginatedResponse;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 
-trait PaginatedApiFormatter
+class ResponseApiFormatter implements ResponseFormatterInterface
 {
-    // used for API responses mainly
-    public function format(PaginationInterface $pagination): array
+    public function formatListItems(PaginationInterface $pagination): array
     {
         $pagesCount = ceil($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage());
+
         $paginatedResponse = new PaginatedResponse();
         $paginatedResponse->setPage($pagination->getCurrentPageNumber());
         $paginatedResponse->setPages($pagesCount);

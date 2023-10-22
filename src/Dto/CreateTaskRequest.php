@@ -88,5 +88,4 @@ class CreateTaskRequest extends BaseApiRequest
     {
         $this->endDate = $endDate;
     }
-
 }

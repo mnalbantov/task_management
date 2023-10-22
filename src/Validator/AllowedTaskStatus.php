@@ -2,7 +2,6 @@
 
 namespace App\Validator;
 
-use App\Utils\Helper;
 use Symfony\Component\Validator\Constraint;
 
 /**

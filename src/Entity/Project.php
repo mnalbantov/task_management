@@ -238,7 +238,7 @@ class Project implements \JsonSerializable
     public function getStartDatesOnActiveTasks(): array
     {
         return $this->tasks->filter(function (Task $task) {
-            return $task->getDeletedAt() === null;
+            return null === $task->getDeletedAt();
         })->map(function (Task $task) {
             return $task->getStartDate();
         })->toArray();
@@ -247,7 +247,7 @@ class Project implements \JsonSerializable
     public function getEndDatesOnActiveTasks(): array
     {
         return $this->tasks->filter(function (Task $task) {
-            return $task->getDeletedAt() === null;
+            return null === $task->getDeletedAt();
         })->map(function (Task $task) {
             return $task->getEndDate();
         })->toArray();
@@ -256,7 +256,7 @@ class Project implements \JsonSerializable
     private function getActiveTasks(): ArrayCollection|Collection
     {
         return $this->tasks->filter(function (Task $task) {
-            return $task->getDeletedAt() === null;
+            return null === $task->getDeletedAt();
         });
     }
 
@@ -281,7 +281,7 @@ class Project implements \JsonSerializable
     private function isCompleted(): bool
     {
         foreach ($this->tasks as $task) {
-            if ($task->getStatus() !== Helper::TASK_DONE) {
+            if (Helper::TASK_DONE !== $task->getStatus()) {
                 return false;
             }
         }
@@ -294,18 +294,18 @@ class Project implements \JsonSerializable
         if ($this->tasks->isEmpty()) {
             return false;
         }
-        //ensure it's not already passed the deadline
+        // ensure it's not already passed the deadline
         if ($this->isFailed()) {
             return false;
         }
 
         $inProgressCount = 0;
         foreach ($this->tasks as $task) {
-            if ($task->getDeletedAt() !== null) {
+            if (null !== $task->getDeletedAt()) {
                 continue;
             }
-            if ($task->getStatus() === Helper::TASK_IN_PROGRESS || $task->getStatus() !== Helper::TASK_DONE) {
-                $inProgressCount++;
+            if (Helper::TASK_IN_PROGRESS === $task->getStatus() || Helper::TASK_DONE !== $task->getStatus()) {
+                ++$inProgressCount;
             }
         }
 
@@ -314,7 +314,7 @@ class Project implements \JsonSerializable
 
     private function isFailed(): bool
     {
-        if ($this->getEndDate() === null) {
+        if (null === $this->getEndDate()) {
             return false;
         }
 
@@ -341,7 +341,6 @@ class Project implements \JsonSerializable
         $currentDate = new \DateTime();
         $latestDeadline = empty($taskDeadlines) ? null : max($taskDeadlines);
 
-        return $latestDeadline !== null && $currentDate > $latestDeadline;
+        return null !== $latestDeadline && $currentDate > $latestDeadline;
     }
-
 }

@@ -19,5 +19,4 @@ class BaseApiController extends AbstractController
             throw new ViolationException(new ViolationError($violations));
         }
     }
-
 }

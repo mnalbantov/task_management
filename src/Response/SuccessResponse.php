@@ -22,4 +22,3 @@ class SuccessResponse extends JsonResponse
         parent::__construct($data, $status, $headers, $json);
     }
 }
-

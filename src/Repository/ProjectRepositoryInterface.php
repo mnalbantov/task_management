@@ -10,4 +10,6 @@ interface ProjectRepositoryInterface
     public function findByTask(Task $task);
 
     public function save(Project $project);
+
+    public function getActiveById(int $id);
 }

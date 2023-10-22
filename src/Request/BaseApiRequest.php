@@ -3,8 +3,8 @@
 namespace App\Request;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class BaseApiRequest
 {
@@ -31,5 +31,4 @@ abstract class BaseApiRequest
             }
         }
     }
-
 }

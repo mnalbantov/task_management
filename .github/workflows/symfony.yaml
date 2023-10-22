@@ -31,3 +31,7 @@ jobs:
           ./local-php-security-checker
       - name: Execute Unit Tests
         run: vendor/bin/phpunit tests
+      - name: PHPStan code check
+        run: vendor/bin/phpstan analyse src/ --level=1
+      - name: PSR 12/Symfony code style check
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php src/ --dry-run  --diff --verbose

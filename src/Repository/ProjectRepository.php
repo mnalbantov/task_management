@@ -36,6 +36,31 @@ class ProjectRepository extends ServiceEntityRepository implements ProjectReposi
         return $this->usePaginatedResponse($qb, $page, $perPage);
     }
 
+    public function getActive(): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        return $qb
+            ->select('p')
+            ->from(Project::class, 'p')
+            ->where('p.deletedAt IS NULL')
+            ->getQuery()->getResult();
+    }
+
+    public function getActiveById(int $id): ?Project
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        return $qb
+            ->select('p')
+            ->from(Project::class, 'p')
+            ->where('p.id = :id')
+            ->andWhere('p.deletedAt IS NULL')
+            ->setParameter(':id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function save(Project $project)
     {
         $this->getEntityManager()->persist($project);

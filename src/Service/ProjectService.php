@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\CreateProjectRequest;
+use App\Dto\UpdateProjectRequest;
 use App\Entity\Project;
 use App\Event\ProjectCreatedEvent;
 use App\Repository\ProjectRepository;
@@ -51,5 +52,9 @@ class ProjectService
         );
 
         return $project;
+    }
+
+    public function updateProject(Project $project, UpdateProjectRequest $projectRequest)
+    {
     }
 }

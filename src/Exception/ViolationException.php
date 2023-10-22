@@ -3,7 +3,6 @@
 namespace App\Exception;
 
 use App\Response\Error\ViolationError;
-use Throwable;
 
 class ViolationException extends \Exception
 {
@@ -13,7 +12,7 @@ class ViolationException extends \Exception
         ViolationError $violationError,
         string $message = '',
         int $code = 0,
-        ?Throwable $previous = null
+        \Throwable $previous = null
     ) {
         $this->errors = $violationError;
         parent::__construct($message, $code, $previous);

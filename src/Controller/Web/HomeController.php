@@ -2,8 +2,7 @@
 
 namespace App\Controller\Web;
 
-use App\Repository\ProjectRepository;
-use App\Repository\TaskRepository;
+use App\Repository\ProjectRepositoryInterface;
 use App\Request\WebRequest;
 use App\Service\TaskService;
 use Knp\Component\Pager\PaginatorInterface;
@@ -15,17 +14,14 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/projects', name: 'web_projects_')]
 class HomeController extends AbstractController
 {
-
-    private ProjectRepository $projectRepository;
+    private ProjectRepositoryInterface $projectRepository;
     private PaginatorInterface $paginator;
-    private TaskRepository $taskRepository;
     private TaskService $taskService;
 
     public function __construct(
-        ProjectRepository $projectRepository,
-        TaskService $taskService,
+        ProjectRepositoryInterface $projectRepository,
         PaginatorInterface $paginator,
-
+        TaskService $taskService,
     ) {
         $this->projectRepository = $projectRepository;
         $this->paginator = $paginator;
@@ -38,7 +34,7 @@ class HomeController extends AbstractController
         $requestFilter = WebRequest::getRequestFilters($request);
         // Demo for using Knp Paginator
         $projects = $this->paginator->paginate(
-            $this->projectRepository->findAll(),
+            $this->projectRepository->getActive(),
             $requestFilter->getPage(),
             $requestFilter->getLimitPerPage()
         );

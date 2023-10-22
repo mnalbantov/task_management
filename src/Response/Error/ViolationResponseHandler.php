@@ -19,7 +19,7 @@ class ViolationResponseHandler implements ViolationResponseHandlerInterface
         $violations = $violationError->getViolations();
 
         $errors = [];
-        /**@var ConstraintViolation $violation */
+        /** @var ConstraintViolation $violation */
         foreach ($violations as $violation) {
             $errors[$violation->getPropertyPath()][] = $violation->getMessage();
         }

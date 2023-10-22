@@ -2,8 +2,6 @@
 
 namespace App\Utils;
 
-use DateTime;
-
 class Helper
 {
     public const CLIENT_TYPE = 'client';
@@ -22,7 +20,7 @@ class Helper
     public static array $userTypes =
         [
             self::CLIENT_TYPE,
-            self::COMPANY_TYPE
+            self::COMPANY_TYPE,
         ];
 
     public static array $taskStatuses = [
@@ -39,8 +37,8 @@ class Helper
         self::PROJECT_DONE,
     ];
 
-    public static function createDateTime($dateTimeString): DateTime|bool
+    public static function createDateTime($dateTimeString): \DateTime|bool
     {
-        return DateTime::createFromFormat('Y-m-d H:i:s', $dateTimeString);
+        return \DateTime::createFromFormat('Y-m-d H:i:s', $dateTimeString);
     }
 }

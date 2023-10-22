@@ -34,11 +34,15 @@ and run ``composer install`` in root folder.
 
 Make sure to edit your `DATABASE_URL` with actual IP address or container name.
 
-# Migrations
+# Migrations  & Fixtures
 
 In order to run the necessary migrations, enter into your PHP container:
 
 - `bin/console doctrine:migrations:migrate`
+
+If you want to load some example project entries, run:
+
+- `bin/console doctrine:fixtures:load`
 
 If you successfully built the project, you can check if it's up & running on
 http://localhost:8080/health-check
@@ -55,10 +59,21 @@ The project structure is trying to follow Symfony one and based mainly on
 - Event Listeners & Subscribers
 - Exception Handlers 
 - Validators
+- Migrations & Fixtures
+- Custom Query Paginator & Knp Paginator
 
 
 _Not used Forms & FormTypes neither built-in Symfony Form Request Handler & Twig template engine_
 ## Endpoints & Examples
+
+- Web View based endpoints
+
+![img.png](img.png)
+http://localhost:8080/web/projects/ [GET] list of projects
+
+http://localhost:8080/web/projects/25/tasks [GET] list of tasks per project
+
+- API Based Endpoints
 
 For sake of simplicity you can use the provided endpoints and insert cURL
 examples into GUI tool like Postman
@@ -169,4 +184,5 @@ The security of the packages is maintained by GH Actions and vulnerability packa
 There's no significant unit tests in this project.
 The code convention practices are based on PSR rules
 
-TBD
+- PHP CS Fixer (Symfony)
+- PHPStan

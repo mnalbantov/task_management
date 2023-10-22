@@ -6,6 +6,7 @@ use App\Dto\CreateProjectRequest;
 use App\Exception\ViolationException;
 use App\Repository\ProjectRepositoryInterface;
 use App\Request\WebRequest;
+use App\Response\Formatter\ResponseFormatterInterface;
 use App\Response\NotFoundResponse;
 use App\Response\PaginatedApiFormatter;
 use App\Response\SuccessResponse;
@@ -25,17 +26,20 @@ class ProjectController extends BaseApiController
     private ProjectService $projectService;
     private TaskService $taskService;
     private PaginatorInterface $paginator;
+    private ResponseFormatterInterface $responseFormatter;
 
     public function __construct(
         ProjectRepositoryInterface $projectRepository,
         ProjectService $projectService,
         TaskService $taskService,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,
+        ResponseFormatterInterface $responseFormatter
     ) {
         $this->projectRepository = $projectRepository;
         $this->projectService = $projectService;
         $this->taskService = $taskService;
         $this->paginator = $paginator;
+        $this->responseFormatter = $responseFormatter;
     }
 
     #[Route('/', name: 'list', methods: ['GET'])]
@@ -52,7 +56,7 @@ class ProjectController extends BaseApiController
     #[Route('/{id<\d+>}', name: 'view', methods: ['GET'])]
     public function view(int $id): JsonResponse
     {
-        $project = $this->projectRepository->find($id);
+        $project = $this->projectRepository->getActiveById($id);
         if (!$project) {
             return new NotFoundResponse();
         }
@@ -63,13 +67,13 @@ class ProjectController extends BaseApiController
     #[Route('/{id<\d+>}/tasks', name: 'tasks', methods: ['GET'])]
     public function tasks(Request $request, int $id): SuccessResponse
     {
-        $project = $this->projectRepository->find($id);
+        $project = $this->projectRepository->getActiveById($id);
         if (!$project) {
             return new NotFoundResponse();
         }
         $requestFilter = WebRequest::getRequestFilters($request);
 
-        $tasks = $this->format(
+        $tasks = $this->responseFormatter->formatListItems(
             $this->paginator->paginate(
                 $this->taskService->getTasksByProject($id),
                 $requestFilter->getPage(),
@@ -91,5 +95,4 @@ class ProjectController extends BaseApiController
 
         return new SuccessResponse($project);
     }
-
 }

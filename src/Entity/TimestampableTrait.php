@@ -42,5 +42,4 @@ trait TimestampableTrait
     {
         $this->deletedAt = $deletedAt;
     }
-
 }
