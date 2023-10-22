@@ -1,19 +1,26 @@
 <p align="center">
 <a href="https://github.com/mnalbantov/task_management/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
 </p>
-
 ## Overview
 
 This is Symfony API skeleton based project, created for sake of demonstration purposes for Paynetics.
 
 Technologies used in this project
 
-- Docker
-- PostgresSQL 12
-- Symfony 6
-- Doctrine
-- PHP 8
-- CI/CD (GitHub Actions)
+- <a href="https://www.docker.com/">Docker</a>
+- <a href="https://symfony.com/">Symfony 6</a>
+- <a href="https://www.postgresql.org/">PostgresSQL</a>
+- <a href="https://www.doctrine-project.org/">Doctrine</a>
+- <a href="https://www.php.net/releases/8.0/en.php">PHP 8</a>
+- <a href="https://github.com/features/actions">CI/CD (GH Actions)</a>
+
+Libraries & packages used
+
+- <a href="https://packagist.org/packages/symfony/">Symfony Bundles</a>
+- <a href="https://packagist.org/packages/knplabs/knp-paginator-bundle">Knp Paginator</a>
+- <a href="https://packagist.org/packages/doctrine/">Doctrine ORM pack</a>
+
+For complete details for used packages & libraries, check out `composer.json` file.
 
 ## Getting started
 
@@ -51,7 +58,7 @@ If you see `The app is configured & working properly!` you are ready to go.
 
 ## Project Structure
 
-The project structure is trying to follow Symfony one and based mainly on 
+The project structure is trying to follow Symfony and based mainly on 
 - Events 
 - DTOs
 - Entities & Repositories
@@ -62,24 +69,25 @@ The project structure is trying to follow Symfony one and based mainly on
 - Migrations & Fixtures
 - Custom Query Paginator & Knp Paginator
 
+Note: _Not used Forms & FormTypes neither built-in Symfony Form Request Handler & Twig template engine_
+
 ## Workflow 
 1. As Project is created, it's with **New** status by default.
 2. Task can be created/assigned only for opened projects (_i.e not failed or completed_).
-3. When task is created/updated it's reflect on Project status and time frame.
+3. When task is created/updated it reflects on Project status and time frame.
 4. - Task status is updated to **In Progress** and End date is set for the task. 
    - The project overall timeframe has been updated, based on the tasks.
 5. If task is updated, but deadline for the project is missed, it will automatically mark as Failed.
 6. **Done** is considered as all the Project  tasks are completed in time.
 7. Duration represents the time frame in tasks for particular project.
-_Not used Forms & FormTypes neither built-in Symfony Form Request Handler & Twig template engine_
 ## Endpoints & Examples
 
-- Web View based endpoints
+- Web View based endpoints & examples
 
 ![img.png](img.png)
-http://localhost:8080/web/projects/ [GET] list of projects
+http://localhost:8080/web/projects/ [**GET**] list of projects
 
-http://localhost:8080/web/projects/25/tasks [GET] list of tasks per project
+http://localhost:8080/web/projects/25/tasks [**GET**] list of tasks per project
 
 - API Based Endpoints
 
@@ -96,11 +104,11 @@ examples into GUI tool like Postman
   tasks_delete       DELETE /tasks/{id}/delete      
 ```
 
-[GET] http://localhost:8080/projects - paginated results with 20 records by default
+[**GET**] http://localhost:8080/projects - paginated results with 20 records by default
 
-[GET] http://localhost:8080/projects?resultsPerPage=2&page=2 - paginated results with custom page & limit
+[**GET**] http://localhost:8080/projects?resultsPerPage=2&page=2 - paginated results with custom page & limit
 
-Create project example [POST] - cURL
+Create project example [**POST**] - cURL
 
 ```
 curl --location 'http://localhost:8080/projects/create' \
@@ -114,7 +122,7 @@ curl --location 'http://localhost:8080/projects/create' \
 }'
 ```
 
-Create task for specific Project [POST] - cURL
+Create task for specific Project [**POST**] - cURL
 
 ```
 curl --location 'http://localhost:8080/tasks/create' \
@@ -127,7 +135,7 @@ curl --location 'http://localhost:8080/tasks/create' \
 }'
 ```
 
-Update task for specific Project [PATCH] - cURL
+Update task for specific Project [**PATCH**] - cURL
 
 ```
 curl --location --request PATCH 'http://localhost:8080/tasks/19/update' \
@@ -142,7 +150,7 @@ curl --location --request PATCH 'http://localhost:8080/tasks/19/update' \
 }'
 ```
 
-[Success] Example Response
+[**Success**] Example Response
 
 ```
 {
@@ -159,7 +167,7 @@ curl --location --request PATCH 'http://localhost:8080/tasks/19/update' \
 }
 ```
 
-[Error] Example Response
+[**Error**] Example Response
 
 ```
 {
@@ -181,7 +189,7 @@ OR
 }
 ```
 
-[DELETE] Task http://localhost:8080/tasks/19/delete
+[**DELETE**] Task http://localhost:8080/tasks/19/delete
 
 ## Security 
  
