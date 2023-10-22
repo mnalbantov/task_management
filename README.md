@@ -189,6 +189,8 @@ OR
 }
 ```
 
+[**DELETE**] Project http://localhost:8080/projects/123/delete
+
 [**DELETE**] Task http://localhost:8080/tasks/19/delete
 
 ## Security 

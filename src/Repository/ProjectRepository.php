@@ -7,7 +7,6 @@ use App\Entity\Project;
 use App\Entity\Task;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * @extends ServiceEntityRepository<Project>
@@ -76,7 +75,7 @@ class ProjectRepository extends ServiceEntityRepository implements ProjectReposi
 
     public function softDeleteWithAssociatedTasks(Project $project): void
     {
-        //showcase transactional approach with direct QB for better performance
+        // showcase transactional approach with direct QB for better performance
         $entityManager = $this->getEntityManager();
         $entityManager->wrapInTransaction(
             function () use ($project, $entityManager) {
