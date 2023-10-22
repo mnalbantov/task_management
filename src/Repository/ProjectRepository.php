@@ -2,10 +2,12 @@
 
 namespace App\Repository;
 
+use _PHPStan_d5c599c96\Nette\Utils\DateTime;
 use App\Entity\Project;
 use App\Entity\Task;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * @extends ServiceEntityRepository<Project>
@@ -70,5 +72,40 @@ class ProjectRepository extends ServiceEntityRepository implements ProjectReposi
     public function findByTask(Task $task)
     {
         // TODO: Implement findByTask() method.
+    }
+
+    public function softDeleteWithAssociatedTasks(Project $project): void
+    {
+        //showcase transactional approach with direct QB for better performance
+        $entityManager = $this->getEntityManager();
+        $entityManager->wrapInTransaction(
+            function () use ($project, $entityManager) {
+                $dateTime = new DateTime();
+                $project->setDeletedAt($dateTime);
+                $entityManager->persist($project);
+
+                $qb = $entityManager->createQueryBuilder();
+                $qb
+                    ->update(Task::class, 't')
+                    ->set('t.deletedAt', ':deletedAt')
+                    ->where('t.project = :projectId')
+                    ->setParameter('deletedAt', $dateTime)
+                    ->setParameter('projectId', $project->getId())
+                    ->getQuery()
+                    ->execute();
+            }
+        );
+    }
+
+    public function regularSoftDelete(Project $project): void
+    {
+        // showcase for associated soft delete for small number of items
+        $project->setDeletedAt(new \DateTime());
+        // Set deletedAt for associated tasks
+        foreach ($project->getTasks() as $task) {
+            $task->setDeletedAt(new \DateTime());
+            $this->getEntityManager()->persist($task);
+        }
+        $this->getEntityManager()->flush();
     }
 }

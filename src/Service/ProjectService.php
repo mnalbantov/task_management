@@ -56,5 +56,12 @@ class ProjectService
 
     public function updateProject(Project $project, UpdateProjectRequest $projectRequest)
     {
+        // update the project code goes here
+        // TODO add more logic
+    }
+
+    public function softDeleteProject(Project $project): void
+    {
+        $this->projectRepository->softDeleteWithAssociatedTasks($project);
     }
 }

@@ -95,4 +95,16 @@ class ProjectController extends BaseApiController
 
         return new SuccessResponse($project);
     }
+
+    #[Route('/{id<\d+>}/delete', name: 'delete', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
+    {
+        $project = $this->projectRepository->getActiveById($id);
+        if (!$project) {
+            return new NotFoundResponse();
+        }
+        $this->projectService->softDeleteProject($project);
+
+        return new SuccessResponse($project);
+    }
 }
