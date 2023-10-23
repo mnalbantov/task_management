@@ -8,6 +8,7 @@ use App\Response\ErrorResponse;
 use App\Response\NotFoundResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -51,7 +52,7 @@ class ApiExceptionEventSubscriber implements EventSubscriberInterface
     public function onKernelResponse(ResponseEvent $event)
     {
         $response = $event->getResponse();
-        if ($response instanceof ErrorResponse) {
+        if ($response instanceof JsonResponse) {
             $response->setStatusCode(Response::HTTP_OK); // by design we want all responses to be 200
         }
     }
